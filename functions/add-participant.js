@@ -7,7 +7,12 @@ exports.handler = function (context, event, callback) {
   const client = context.getTwilioClient()
 
   const { participantType, conversationSid, identity, number } = event
-  const trimmedNumber = number.trim() // trim so we don't have to decode plus sign client-side, since it arrives as an empty space
+
+  // trim so we don't have to decode plus sign client-side, since it arrives as an empty space
+  let trimmedNumber
+  if (number) {
+    trimmedNumber = number.trim()
+  }
 
   let binding
   switch (participantType) {
@@ -36,5 +41,11 @@ exports.handler = function (context, event, callback) {
     .participants.create(binding)
     .then(participant => response.setBody({ participantSid: participant.sid }))
     .then(() => callback(null, response))
-    .catch(err => callback(err))
+    .catch(err => {
+      if (err.code === 50433) {
+        response.setBody({ participantSid: 'exists' })
+        return callback(null, response)
+      }
+      return callback(err)
+    })
 }
