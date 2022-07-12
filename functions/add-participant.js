@@ -2,15 +2,38 @@ const path = Runtime.getFunctions()['response-header'].path
 const response = require(path).response()
 
 exports.handler = function (context, event, callback) {
-  const identity = event.identity
+  const twilioNumber = context.TWILIO_NUMBER
   const serviceSid = context.SERVICE_SID
-  const conversationSid = context.CONVERSATION_SID
   const client = context.getTwilioClient()
+
+  const { participantType, conversationSid, identity, number } = event
+  const trimmedNumber = number.trim() // trim so we don't have to decode plus sign client-side, since it arrives as an empty space
+
+  let binding
+  switch (participantType) {
+    case 'whatsapp':
+      binding = {
+        'messagingBinding.address': `whatsapp:+${trimmedNumber}`,
+        'messagingBinding.proxyAddress': `whatsapp:${twilioNumber}`
+      }
+      break
+    case 'sms':
+      binding = {
+        'messagingBinding.address': `+${trimmedNumber}`,
+        'messagingBinding.proxyAddress': `${twilioNumber}`
+      }
+      break
+    case 'chat':
+      binding = { identity: identity }
+      break
+    default:
+      break
+  }
 
   client.conversations
     .services(serviceSid)
     .conversations(conversationSid)
-    .participants.create({ identity: identity })
+    .participants.create(binding)
     .then(participant => {
       response.setBody({
         participantSid: participant.sid
