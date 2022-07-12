@@ -34,11 +34,7 @@ exports.handler = function (context, event, callback) {
     .services(serviceSid)
     .conversations(conversationSid)
     .participants.create(binding)
-    .then(participant => {
-      response.setBody({
-        participantSid: participant.sid
-      })
-      return callback(null, response)
-    })
+    .then(participant => response.setBody({ participantSid: participant.sid }))
+    .then(() => callback(null, response))
     .catch(err => callback(err))
 }
