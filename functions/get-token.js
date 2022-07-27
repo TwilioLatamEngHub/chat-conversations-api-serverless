@@ -6,7 +6,8 @@ exports.handler = function (context, event, callback) {
   const twilioApiKey = context.API_KEY
   const twilioApiSecret = context.API_SECRET
   const serviceSid = context.SERVICE_SID
-  const identity = event.identity
+
+  const { identity } = event
 
   const AccessToken = Twilio.jwt.AccessToken
   const ChatGrant = AccessToken.ChatGrant
@@ -23,7 +24,7 @@ exports.handler = function (context, event, callback) {
     twilioAccountSid,
     twilioApiKey,
     twilioApiSecret,
-    { identity: identity }
+    { identity: identity, ttl: 3600 }
   )
 
   token.addGrant(chatGrant)
