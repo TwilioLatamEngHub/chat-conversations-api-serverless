@@ -6,4 +6,4 @@ This is the backend service for the [Chat Conversations API Client](https://gith
 
 # Setup
 
-Make a `.env` according to the `.env.example` and add the informations accordingly. After deploying the functions, add both `get-conversations` and `get-token` to the `.env` file in the client side app.
+Make a `.env` according to the `.env.example` and add the informations accordingly. After deploying the functions, add both `add-participant` and `get-token` to the `.env` file in the client side app.
